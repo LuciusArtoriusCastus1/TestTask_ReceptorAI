@@ -15,7 +15,7 @@ app = FastAPI(
 
 
 @app.post("/route")
-async def route_event(event: Event):  # token: dict = Depends(verify_token)
+async def route_event(event: Event, token: dict = Depends(verify_token)):
     # Endpoint for routing the event
     try:
         strategy = event.strategy or get_current_strategy()
@@ -34,7 +34,7 @@ async def route_event(event: Event):  # token: dict = Depends(verify_token)
             "timestamp": datetime.utcnow(),
             "request": event.dict(),
             "response": response,
-            # "token": token,
+            "token": token,
         })
 
         return response
