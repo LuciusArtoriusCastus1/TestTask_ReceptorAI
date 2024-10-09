@@ -15,7 +15,7 @@ app = FastAPI(
 
 
 @app.post("/route")
-async def route_event(event: Event, token: dict = Depends(verify_token)):
+async def route_event(event: Event):  # token: dict = Depends(verify_token)
     # Endpoint for routing the event
     try:
         strategy = event.strategy or get_current_strategy()
@@ -34,7 +34,7 @@ async def route_event(event: Event, token: dict = Depends(verify_token)):
             "timestamp": datetime.utcnow(),
             "request": event.dict(),
             "response": response,
-            "token": token,
+            # "token": token,
         })
 
         return response
@@ -84,3 +84,16 @@ async def create_jwt(user: User, timedelta=None):
     # Endpoint for creating JWT token
     token = create_token(data=user.dict(), expires_delta=timedelta)
     return {'token': token}
+
+
+@app.get('/collection/{collection_name}')
+async def list_collections(collection_name: str):
+    # Endpoint for tracking collections
+    if collection_name == "destinations":
+        data = destinations_collection.find({}, {"_id": 0})
+        return {'collection': data.to_list()}
+    elif collection_name == "logs":
+        data = logs_collection.find({}, {"_id": 0})
+        return {'collection': data.to_list()}
+    else:
+        return {'message': 'Invalid collection name'}
